@@ -1,5 +1,5 @@
 'use strict';
-const SIZE_OF_SQUARE = 4;
+const SIZE_OF_SQUARE = 10;
 
 class Snake {
 	constructor(props) {
@@ -40,23 +40,37 @@ class Snake {
 
 	init() {
 		this.prepareCanvas();
-		this.clear();
 		this.createCoordinates();
+		this.drawGrid();
 	}
 
 	drawGrid() {
-
+		const ctx = this.ctx;
+		const height = parseInt(this.props.height, 10);
+		const width = parseInt(this.props.width, 10);
+		const lineWidth = 1;
+		const lineStartCoordinate = 0;
+		ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+		for (let i = 0; i < this.axisX.length; i++) {
+			ctx.fillRect(this.axisX[i], lineStartCoordinate, lineWidth, height);
+		}
+		for (let j = 0; j < this.axisY.length; j++) {
+			ctx.fillRect(lineStartCoordinate, this.axisY[j], width, lineWidth);
+		}
 	}
 
 	createCoordinates() {
 		let lengthX = parseInt(this.props.width, 10);
 		let lengthY = parseInt(this.props.height, 10);
-		for (let i = 1; i <= lengthX; i += 3) {
+		let step = SIZE_OF_SQUARE - 1;
+		for (let i = 1; i <= lengthX; i += step) {
 			this.axisX.push(i);
 		}
-		for (let j = 1; j <= lengthY; j += 3) {
+		for (let j = 1; j <= lengthY; j += step) {
 			this.axisY.push(j);
 		}
+		console.log(this.axisX[ 21 ]);
+		console.log(this.axisY[21]);
 	}
 
 	clear() {
