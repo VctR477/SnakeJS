@@ -6,6 +6,7 @@ const DEFAULT_CANVAS_BORDER = '1px solid #000';
 const SIZE_OF_SQUARE = 30;
 const GRID_LINE_WIDTH = 2;
 const GRID_LINE_COLOR = 'rgba(255, 0, 0, 0.5)';
+const DEFAULT_SNAKE_COLOR = 'darkgreen';
 
 class Snake {
 	constructor(props) {
@@ -19,7 +20,9 @@ class Snake {
 		this.axisX = [];
 		this.axisY = [];
 		this.ctx;
-		this.snake = [];
+		this.snakeSize = 0;
+		this.snakeColor = DEFAULT_SNAKE_COLOR;
+		this.snakePos = [];
 	}
 
 	prepareCanvas() {
@@ -51,6 +54,8 @@ class Snake {
 		this.prepareCanvas();
 		this.createCoordinates();
 		this.drawGrid();
+		this.createFirstSnakePosition();
+		this.drawSnake();
 	}
 
 	drawGrid() {
@@ -77,6 +82,29 @@ class Snake {
 		for (let j = 0; j <= lengthY; j += step) {
 			this.axisY.push(j);
 		}
+		this.snakeSize = this.axisX[ 1 ] - this.axisX[ 0 ];
+	}
+
+	createFirstSnakePosition() {
+		let snakeYPosition = ~~((this.axisY.length / 2) - 1);
+		let snakeXPosition = ~~((this.axisX.length - 4) / 2);
+		for (let i = 0; i < 4; i++) {
+			let xy = [];
+			xy.push(this.axisX[ snakeXPosition + i ]);
+			xy.push(this.axisY[ snakeYPosition ]);
+			this.snakePos.push(xy);
+		}
+	}
+
+	drawSnake() {
+		const size = this.snakeSize - GRID_LINE_WIDTH;
+		const ctx = this.ctx;
+		ctx.fillStyle = DEFAULT_SNAKE_COLOR;
+		this.snakePos.forEach(item => {
+			let x = item[ 0 ] + GRID_LINE_WIDTH;
+			let y = item[ 1 ] + GRID_LINE_WIDTH;
+			ctx.fillRect(x, y, size, size);
+		});
 	}
 
 	clear() {
