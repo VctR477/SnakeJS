@@ -59,12 +59,6 @@ class Snake {
 		this.drawGrid();
 		this.createFirstSnakePosition();
 		this.drawSnake();
-		this.snakeOneStep();
-		this.snakeOneStep();
-		this.snakeOneStep(); this.snakeOneStep();
-		this.clear();
-		this.drawSnake();
-
 	}
 
 	drawGrid() {
@@ -148,6 +142,12 @@ class Snake {
 
 	}
 
+	gameUpdate() {
+		this.snakeOneStep();
+		this.clear();
+		this.drawSnake();
+	}
+
 	clear() {
 		this.ctx.clearRect(0, 0, this.props.width, this.props.height);
 		this.drawGrid();
@@ -162,3 +162,10 @@ class Snake {
 
 let snake = new Snake();
 snake.init();
+
+function gameStart() {
+	snake.gameUpdate();
+	requestAnimationFrame(gameStart);
+}
+
+gameStart();
