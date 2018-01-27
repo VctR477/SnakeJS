@@ -22,7 +22,10 @@ class Snake {
 		this.ctx;
 		this.snakeSize = 0;
 		this.snakeColor = DEFAULT_SNAKE_COLOR;
-		this.snakePos = [];
+		this.snake = {
+			position: [],
+			direction: 'right',
+		};
 	}
 
 	prepareCanvas() {
@@ -56,6 +59,12 @@ class Snake {
 		this.drawGrid();
 		this.createFirstSnakePosition();
 		this.drawSnake();
+		this.snakeOneStep();
+		this.snakeOneStep();
+		this.snakeOneStep(); this.snakeOneStep();
+		this.clear();
+		this.drawSnake();
+
 	}
 
 	drawGrid() {
@@ -92,7 +101,7 @@ class Snake {
 			let xy = [];
 			xy.push(this.axisX[ snakeXPosition + i ]);
 			xy.push(this.axisY[ snakeYPosition ]);
-			this.snakePos.push(xy);
+			this.snake.position.push(xy);
 		}
 	}
 
@@ -100,15 +109,48 @@ class Snake {
 		const size = this.snakeSize - GRID_LINE_WIDTH;
 		const ctx = this.ctx;
 		ctx.fillStyle = DEFAULT_SNAKE_COLOR;
-		this.snakePos.forEach(item => {
+		this.snake.position.forEach(item => {
 			let x = item[ 0 ] + GRID_LINE_WIDTH;
 			let y = item[ 1 ] + GRID_LINE_WIDTH;
 			ctx.fillRect(x, y, size, size);
 		});
 	}
 
+	snakeOneStep() {
+		const direction = this.snake.direction;
+		const snakeHeadIndex = this.snake.position.length - 1;
+		const snakeHead = this.snake.position[ snakeHeadIndex ];
+		let xPositionIndex = this.axisX.indexOf(snakeHead[ 0 ]);
+		let yPositionIndex = this.axisY.indexOf(snakeHead[ 1 ]);
+		let newXY = [];
+		switch (direction) { 
+			case 'right':
+				xPositionIndex++;
+				break;
+			case 'left':
+				xPositionIndex--;
+				break;
+			case 'top':
+				yPositionIndex--;
+				break;
+			case 'bottom':
+				yPositionIndex++;	
+				break;
+			default:
+				break;
+		}
+		let x = this.axisX[ xPositionIndex ];
+		let y = this.axisY[ yPositionIndex ];
+		newXY.push(x);
+		newXY.push(y);
+		this.snake.position.push(newXY);
+		this.snake.position.shift();
+
+	}
+
 	clear() {
 		this.ctx.clearRect(0, 0, this.props.width, this.props.height);
+		this.drawGrid();
 	}
 
 	randomInteger(min, max) {
