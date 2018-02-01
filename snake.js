@@ -3,7 +3,7 @@ const DEFAULT_CANVAS_WIDTH = 600;
 const DEFAULT_CANVAS_HEIGHT = 600;
 const DEFAULT_CANVAS_BGCOLOR = '#cecece';
 const DEFAULT_CANVAS_BORDER = '1px solid #000';
-const SIZE_OF_SQUARE = 20;
+const SIZE_OF_SQUARE = 30;
 const GRID_LINE_WIDTH = 2;
 const GRID_LINE_COLOR = 'rgba(255, 0, 0, 0.5)';
 const DEFAULT_SNAKE_COLOR = 'darkgreen';
@@ -13,6 +13,11 @@ const KEY_CODE_ARROW_RIGHT = 39;
 const KEY_CODE_ARROW_LEFT = 37;
 const KEY_CODE_ARROW_BOTTOM =40 ;
 const KEY_CODE_ARROW_TOP = 38;
+const RIGHT = 'right';
+const LEFT = 'left';
+const TOP = 'top';
+const BOTTOM = 'bottom';
+const TARGET_COLOR = '#0000ff';
 
 class Snake {
 	constructor(props) {
@@ -34,7 +39,7 @@ class Snake {
 		this.snakeSize = 0;
 		this.snake = {
 			position: [],
-			direction: 'top',
+			direction: RIGHT,
 		};
 		this.game = false;
 	}
@@ -70,6 +75,7 @@ class Snake {
 		this.drawGrid();
 		this.createFirstSnakePosition();
 		this.drawSnake();
+		console.log(this.axisX);
 	}
 
 	drawGrid() {
@@ -114,6 +120,7 @@ class Snake {
 		const size = this.snakeSize - this.props.lineWidth;
 		const ctx = this.ctx;
 		ctx.fillStyle = this.props.snakeColor;
+		console.log(this.snake.position);
 		this.snake.position.forEach(item => {
 			let x = item[ 0 ] + this.props.lineWidth;
 			let y = item[ 1 ] + this.props.lineWidth;
@@ -129,16 +136,16 @@ class Snake {
 		let yPositionIndex = this.axisY.indexOf(snakeHead[ 1 ]);
 		let newXY = [];
 		switch (direction) { 
-			case 'right':
+			case RIGHT:
 				xPositionIndex++;
 				break;
-			case 'left':
+			case LEFT:
 				xPositionIndex--;
 				break;
-			case 'top':
+			case TOP:
 				yPositionIndex--;
 				break;
-			case 'bottom':
+			case BOTTOM:
 				yPositionIndex++;
 				break;
 			default:
@@ -169,6 +176,22 @@ class Snake {
 		rand = Math.round(rand);
 		return rand;
 	}
+
+	drawTarget() {
+		let min = 0;
+		let maxX = this.axisX.length - 1;
+		let maxY = this.axisY.length - 1;
+		let randomX = this.randomInteger(min, maxX);
+		let randomY = this.randomInteger(min, maxY);
+		let posX = this.axisX[ randomX ];
+		let posY = this.axisY[ randomY ];
+		const ctx = this.ctx;
+		ctx.fillStyle = TARGET_COLOR;
+		const size = this.snakeSize - this.props.lineWidth;
+		let x = posX + this.props.lineWidth;
+		let y = posY + this.props.lineWidth;
+		ctx.fillRect(x, y, size, size);
+	}
 }
 
 let snake = new Snake();
@@ -186,21 +209,22 @@ function gameStart() {
 let btn = document.getElementById('btn');
 btn.addEventListener('click', () => {
 	clearTimeout(snake.game);
+	snake.drawTarget();
 });
 
 document.addEventListener('keydown', (event) => {
 	switch (event.keyCode) {
 		case KEY_CODE_ARROW_RIGHT:
-			snake.snake.direction = snake.snake.direction !== 'left' ? 'right' : 'left';
+			snake.snake.direction = snake.snake.direction !== LEFT ? RIGHT : LEFT;
 			break;
 		case KEY_CODE_ARROW_LEFT:
-			snake.snake.direction = snake.snake.direction !== 'right' ? 'left' : 'right';
+			snake.snake.direction = snake.snake.direction !== RIGHT ? LEFT : RIGHT;
 			break;
 		case KEY_CODE_ARROW_TOP:
-			snake.snake.direction = snake.snake.direction !== 'bottom' ? 'top' : 'bottom';
+			snake.snake.direction = snake.snake.direction !== BOTTOM ? TOP : BOTTOM;
 			break;
 		case KEY_CODE_ARROW_BOTTOM:
-			snake.snake.direction = snake.snake.direction !== 'top' ? 'bottom' : 'top';
+			snake.snake.direction = snake.snake.direction !== TOP ? BOTTOM : TOP;
 			break;
 		default:
 			break;
