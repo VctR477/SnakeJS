@@ -3,10 +3,16 @@ const DEFAULT_CANVAS_WIDTH = 600;
 const DEFAULT_CANVAS_HEIGHT = 600;
 const DEFAULT_CANVAS_BGCOLOR = '#cecece';
 const DEFAULT_CANVAS_BORDER = '1px solid #000';
-const SIZE_OF_SQUARE = 30;
+const SIZE_OF_SQUARE = 20;
 const GRID_LINE_WIDTH = 2;
 const GRID_LINE_COLOR = 'rgba(255, 0, 0, 0.5)';
 const DEFAULT_SNAKE_COLOR = 'darkgreen';
+const ONE_SECOND = 1000;
+const FPS = 6;
+const KEY_CODE_ARROW_RIGHT = 39;
+const KEY_CODE_ARROW_LEFT = 37;
+const KEY_CODE_ARROW_BOTTOM =40 ;
+const KEY_CODE_ARROW_TOP = 38;
 
 class Snake {
 	constructor(props) {
@@ -15,32 +21,37 @@ class Snake {
 			height: DEFAULT_CANVAS_HEIGHT,
 			bgColor: DEFAULT_CANVAS_BGCOLOR,
 			border: DEFAULT_CANVAS_BORDER,
+			sizeSquare: SIZE_OF_SQUARE,
+			lineWidth: GRID_LINE_WIDTH,
+			lineColor: GRID_LINE_COLOR,
+			snakeColor: DEFAULT_SNAKE_COLOR,
+			fps: FPS,
 		};
 		this.props = Object.assign(this.defaultProps, props);
 		this.axisX = [];
 		this.axisY = [];
 		this.ctx;
 		this.snakeSize = 0;
-		this.snakeColor = DEFAULT_SNAKE_COLOR;
 		this.snake = {
 			position: [],
-			direction: 'right',
+			direction: 'top',
 		};
+		this.game = false;
 	}
 
 	prepareCanvas() {
 		let width = this.props.width;
 		let height = this.props.height;
-		let step = SIZE_OF_SQUARE - GRID_LINE_WIDTH;
+		let step = this.props.sizeSquare - this.props.lineWidth;
 		let remainW = width % step;
 		let remainH = height % step;
 
 		if (remainW !== 0) {
-			width += SIZE_OF_SQUARE - remainW;
+			width += this.props.sizeSquare - remainW;
 			this.props.width = width;
 		}
 		if (remainH !== 0) {
-			height += SIZE_OF_SQUARE - remainH;
+			height += this.props.sizeSquare - remainH;
 			this.props.height = height;
 		}
 
@@ -66,19 +77,19 @@ class Snake {
 		const height = this.props.height;
 		const width = this.props.width;
 		const lineStartCoordinate = 0;
-		ctx.fillStyle = GRID_LINE_COLOR;
+		ctx.fillStyle = this.props.lineColor;
 		for (let i = 0; i < this.axisX.length; i++) {
-			ctx.fillRect(this.axisX[i], lineStartCoordinate, GRID_LINE_WIDTH, height);
+			ctx.fillRect(this.axisX[i], lineStartCoordinate, this.props.lineWidth, height);
 		}
 		for (let j = 0; j < this.axisY.length; j++) {
-			ctx.fillRect(lineStartCoordinate, this.axisY[j], width, GRID_LINE_WIDTH);
+			ctx.fillRect(lineStartCoordinate, this.axisY[j], width, this.props.lineWidth);
 		}
 	}
 
 	createCoordinates() {
 		let lengthX = this.props.width - 1;
 		let lengthY = this.props.height - 1;
-		let step = SIZE_OF_SQUARE - GRID_LINE_WIDTH;
+		let step = this.props.sizeSquare - this.props.lineWidth;
 		for (let i = 0; i <= lengthX; i += step) {
 			this.axisX.push(i);
 		}
@@ -100,18 +111,18 @@ class Snake {
 	}
 
 	drawSnake() {
-		const size = this.snakeSize - GRID_LINE_WIDTH;
+		const size = this.snakeSize - this.props.lineWidth;
 		const ctx = this.ctx;
-		ctx.fillStyle = DEFAULT_SNAKE_COLOR;
+		ctx.fillStyle = this.props.snakeColor;
 		this.snake.position.forEach(item => {
-			let x = item[ 0 ] + GRID_LINE_WIDTH;
-			let y = item[ 1 ] + GRID_LINE_WIDTH;
+			let x = item[ 0 ] + this.props.lineWidth;
+			let y = item[ 1 ] + this.props.lineWidth;
 			ctx.fillRect(x, y, size, size);
 		});
 	}
 
 	snakeOneStep() {
-		const direction = this.snake.direction;
+		let direction = this.snake.direction;
 		const snakeHeadIndex = this.snake.position.length - 1;
 		const snakeHead = this.snake.position[ snakeHeadIndex ];
 		let xPositionIndex = this.axisX.indexOf(snakeHead[ 0 ]);
@@ -128,7 +139,7 @@ class Snake {
 				yPositionIndex--;
 				break;
 			case 'bottom':
-				yPositionIndex++;	
+				yPositionIndex++;
 				break;
 			default:
 				break;
@@ -163,9 +174,39 @@ class Snake {
 let snake = new Snake();
 snake.init();
 
+gameStart();
+
 function gameStart() {
 	snake.gameUpdate();
-	requestAnimationFrame(gameStart);
+	snake.game = setTimeout(() => {
+		requestAnimationFrame(gameStart);
+	}, ONE_SECOND / snake.props.fps);
 }
 
-gameStart();
+let btn = document.getElementById('btn');
+btn.addEventListener('click', () => {
+	clearTimeout(snake.game);
+});
+
+document.addEventListener('keydown', (event) => {
+	switch (event.keyCode) {
+		case KEY_CODE_ARROW_RIGHT:
+			snake.snake.direction = snake.snake.direction !== 'left' ? 'right' : 'left';
+			break;
+		case KEY_CODE_ARROW_LEFT:
+			snake.snake.direction = snake.snake.direction !== 'right' ? 'left' : 'right';
+			break;
+		case KEY_CODE_ARROW_TOP:
+			snake.snake.direction = snake.snake.direction !== 'bottom' ? 'top' : 'bottom';
+			break;
+		case KEY_CODE_ARROW_BOTTOM:
+			snake.snake.direction = snake.snake.direction !== 'top' ? 'bottom' : 'top';
+			break;
+		default:
+			break;
+	}
+});
+
+
+
+
