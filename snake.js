@@ -42,6 +42,8 @@ class Snake {
 			direction: RIGHT,
 		};
 		this.game = false;
+		this.targetShow = false;
+		this.targetPosition = [];
 	}
 
 	prepareCanvas() {
@@ -75,7 +77,6 @@ class Snake {
 		this.drawGrid();
 		this.createFirstSnakePosition();
 		this.drawSnake();
-		console.log(this.axisX);
 	}
 
 	drawGrid() {
@@ -120,7 +121,6 @@ class Snake {
 		const size = this.snakeSize - this.props.lineWidth;
 		const ctx = this.ctx;
 		ctx.fillStyle = this.props.snakeColor;
-		console.log(this.snake.position);
 		this.snake.position.forEach(item => {
 			let x = item[ 0 ] + this.props.lineWidth;
 			let y = item[ 1 ] + this.props.lineWidth;
@@ -156,14 +156,21 @@ class Snake {
 		newXY.push(x);
 		newXY.push(y);
 		this.snake.position.push(newXY);
-		this.snake.position.shift();
 
+		const targetX = this.targetPosition[ 0 ] - this.props.lineWidth;
+		const targetY = this.targetPosition[ 1 ] - this.props.lineWidth;
+		if (newXY[ 0 ] === targetX && newXY[ 1 ] === targetY) {
+			this.targetShow = false;
+		} else {
+			this.snake.position.shift();
+		}
 	}
 
 	gameUpdate() {
 		this.snakeOneStep();
 		this.clear();
 		this.drawSnake();
+		this.drawTarget();
 	}
 
 	clear() {
@@ -178,20 +185,43 @@ class Snake {
 	}
 
 	drawTarget() {
-		let min = 0;
-		let maxX = this.axisX.length - 1;
-		let maxY = this.axisY.length - 1;
-		let randomX = this.randomInteger(min, maxX);
-		let randomY = this.randomInteger(min, maxY);
-		let posX = this.axisX[ randomX ];
-		let posY = this.axisY[ randomY ];
 		const ctx = this.ctx;
 		ctx.fillStyle = TARGET_COLOR;
 		const size = this.snakeSize - this.props.lineWidth;
-		let x = posX + this.props.lineWidth;
-		let y = posY + this.props.lineWidth;
-		ctx.fillRect(x, y, size, size);
+		if (!this.targetShow) {
+			let x;
+			let y;
+			do {
+				this.targetShow = true;
+				let min = 0;
+				let maxX = this.axisX.length - 1;
+				let maxY = this.axisY.length - 1;
+				let randomX = this.randomInteger(min, maxX);
+				let randomY = this.randomInteger(min, maxY);
+				let posX = this.axisX[ randomX ];
+				let posY = this.axisY[ randomY ];
+				x = posX + this.props.lineWidth;
+				y = posY + this.props.lineWidth;
+				let snakeXY = this.snake.position;
+				for (let i = 0; i < snakeXY.length; i++) {
+					let X = snakeXY[ i ][ 0 ];
+					let Y = snakeXY[ i ][ 1 ];
+					if (X === posX && Y === posY) {
+						this.targetShow = false;
+					}
+				}
+			} while (!this.targetShow);
+			this.targetPosition[ 0 ] = x;
+			this.targetPosition[ 1 ] = y;
+			ctx.fillRect(x, y, size, size);
+		} else {
+			let x = this.targetPosition[ 0 ];
+			let y = this.targetPosition[ 1 ];
+			ctx.fillRect(x, y, size, size);
+		}
 	}
+
+
 }
 
 let snake = new Snake();
@@ -208,8 +238,11 @@ function gameStart() {
 
 let btn = document.getElementById('btn');
 btn.addEventListener('click', () => {
-	clearTimeout(snake.game);
-	snake.drawTarget();
+	console.log('x-', snake.targetPosition[ 0 ] -2);
+	console.log('y-', snake.targetPosition[ 1 ] -2);
+	console.log(snake.axisX);
+	console.log(snake.axisY);	
+	
 });
 
 document.addEventListener('keydown', (event) => {
