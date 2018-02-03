@@ -109,7 +109,7 @@ class Snake {
 
 	createFirstSnakePosition() {
 		let snakeYPosition = ~~((this.axisY.length / 2) - 1);
-		let snakeXPosition = ~~((this.axisX.length - 4) / 2);
+		let snakeXPosition = ~~((this.axisX.length - 4) / 2 - 1);
 		for (let i = 0; i < 4; i++) {
 			let xy = [];
 			xy.push(this.axisX[ snakeXPosition + i ]);
@@ -156,7 +156,8 @@ class Snake {
 		let y = this.axisY[ yPositionIndex ];
 		newXY.push(x);
 		newXY.push(y);
-		this.crash(newXY);
+		this.crashOnWall(newXY);
+		this.killYouself(newXY);
 		this.snake.position.push(newXY);
 		const targetX = this.targetPosition[ 0 ] - this.props.lineWidth;
 		const targetY = this.targetPosition[ 1 ] - this.props.lineWidth;
@@ -224,7 +225,7 @@ class Snake {
 		}
 	}
 
-	crash(headPosition) {
+	crashOnWall(headPosition) {
 		const xLimitRight = this.axisX[ this.axisX.length - 1 ];
 		const xLimitLeft = undefined;
 		const yLimitBottom = this.axisY[ this.axisY.length - 1 ];
@@ -235,6 +236,19 @@ class Snake {
 			this.gameOver = true;
 			/** TODO сделать нормальный попап */
 			alert('GAME_OVER');
+		}
+	}
+
+	killYouself(headPosition) {
+		const x = headPosition[ 0 ];
+		const y = headPosition[ 1 ];
+		let snake = this.snake.position;
+		for (let i = 0; i < snake.length; i++) {
+			if (x === snake[ i ][ 0 ] && y === snake[ i ][ 1 ]) {
+				this.gameOver = true;
+			/** TODO сделать нормальный попап */
+			alert('GAME_OVER');
+			}
 		}
 	}
 
