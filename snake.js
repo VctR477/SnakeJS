@@ -44,6 +44,7 @@ class Snake {
 		this.game = false;
 		this.targetShow = false;
 		this.targetPosition = [];
+		this.gameOver = false;
 	}
 
 	prepareCanvas() {
@@ -155,8 +156,8 @@ class Snake {
 		let y = this.axisY[ yPositionIndex ];
 		newXY.push(x);
 		newXY.push(y);
+		this.crash(newXY);
 		this.snake.position.push(newXY);
-
 		const targetX = this.targetPosition[ 0 ] - this.props.lineWidth;
 		const targetY = this.targetPosition[ 1 ] - this.props.lineWidth;
 		if (newXY[ 0 ] === targetX && newXY[ 1 ] === targetY) {
@@ -168,9 +169,11 @@ class Snake {
 
 	gameUpdate() {
 		this.snakeOneStep();
-		this.clear();
-		this.drawSnake();
-		this.drawTarget();
+		if (!this.gameOver) {
+			this.clear();
+			this.drawSnake();
+			this.drawTarget();
+		}
 	}
 
 	clear() {
@@ -194,8 +197,8 @@ class Snake {
 			do {
 				this.targetShow = true;
 				let min = 0;
-				let maxX = this.axisX.length - 1;
-				let maxY = this.axisY.length - 1;
+				let maxX = this.axisX.length - 2;
+				let maxY = this.axisY.length - 2;
 				let randomX = this.randomInteger(min, maxX);
 				let randomY = this.randomInteger(min, maxY);
 				let posX = this.axisX[ randomX ];
@@ -221,6 +224,19 @@ class Snake {
 		}
 	}
 
+	crash(headPosition) {
+		const xLimitRight = this.axisX[ this.axisX.length - 1 ];
+		const xLimitLeft = undefined;
+		const yLimitBottom = this.axisY[ this.axisY.length - 1 ];
+		const yLimitTop = undefined;
+		let x = headPosition[ 0 ];
+		let y = headPosition[ 1 ];
+		if (x === xLimitRight || x === xLimitLeft || y === yLimitBottom || y === yLimitTop) {
+			this.gameOver = true;
+			/** TODO сделать нормальный попап */
+			alert('GAME_OVER');
+		}
+	}
 
 }
 
@@ -234,14 +250,16 @@ function gameStart() {
 	snake.game = setTimeout(() => {
 		requestAnimationFrame(gameStart);
 	}, ONE_SECOND / snake.props.fps);
+	if (snake.gameOver) {
+		clearTimeout(snake.game);
+	}
 }
 
 let btn = document.getElementById('btn');
 btn.addEventListener('click', () => {
-	console.log('x-', snake.targetPosition[ 0 ] -2);
-	console.log('y-', snake.targetPosition[ 1 ] -2);
-	console.log(snake.axisX);
-	console.log(snake.axisY);	
+	// console.log(snake.snake.position);
+	// console.log(snake.axisX);
+	clearTimeout(snake.game);
 	
 });
 
